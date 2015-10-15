@@ -72,8 +72,8 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 
 		try{
 			statement=connection.createStatement();
-			String query="SELECT MAX(fileid) AS maxid"+
-					"FROM file";
+			String query="SELECT MAX(fileid) AS maxid "+
+						 "FROM file;";
 			resultSet=statement.executeQuery(query);
 			resultSet.next();
 			ret=resultSet.getInt("maxid");
@@ -81,7 +81,7 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 			statement.close();
 		}
 		catch(SQLException se){
-			System.out.println("SQLException");
+			se.printStackTrace();
 		}
 		finally{
 			try{
@@ -99,6 +99,43 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		return ret;
 	}
 
+	//yet to be tested 
+	public int getTagId(String argName){
+		Statement statement=null;
+		int ret=0;
+		ResultSet resultSet=null;
+
+		try{
+			statement=connection.createStatement();
+			String query="SELECT tagid "+
+						 "FROM tag "+
+						 "WHERE tagname=\'"+argName+"\'";
+			resultSet=statement.executeQuery(query);
+			resultSet.next();
+			ret=resultSet.getInt("tagid");
+			resultSet.close();
+			statement.close();
+		}
+		catch(SQLException se){
+			se.printStackTrace();
+		}
+		finally{
+			try{
+				if(statement!=null){
+					statement.close();
+				}
+				if(resultSet!=null){
+					resultSet.close();
+				}
+			}
+			catch (SQLException se) {
+				System.out.println("SQLException in finally block...");
+			}
+		}
+		return ret;
+	}
+
+	
 	//yet to be tested
 	public int insertFile(File file){
 		Statement statement=null;
@@ -106,14 +143,13 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 
 		try{
 			statement=connection.createStatement();
-			String query="INSERT INTO file(filename, path, downdate, frequency)"+
-					"value(\""+file.getFileName()+"\",\""+file.getPath()+"\",DATE\""+
-					file.getDownDateAsString()+"\","+file.getFrequency()+");";
+			String query="INSERT INTO file(filename, path, frequency) "+
+					     "VALUE(\""+file.getFileName()+"\",\""+file.getPath()+"\","+file.getFrequency()+");";
 			ret=statement.executeUpdate(query);
 			statement.close();
 		}
 		catch(SQLException se){
-			System.out.println("SQLException");
+			se.printStackTrace();
 		}
 		finally{
 			try{
@@ -127,8 +163,35 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		}
 		return ret;
 	}
+	
+	public int insertTagging(int fileId, int tagId){
+		Statement statement=null;
+		int ret=0;
 
-	//yet to be tested
+		try{
+			statement=connection.createStatement();
+			String query="INSERT INTO tagged_to(tagid, fileid) "+
+					     "VALUE("+tagId+","+ fileId+");";
+			ret=statement.executeUpdate(query);
+			statement.close();
+		}
+		catch(SQLException se){
+			se.printStackTrace();
+		}
+		finally{
+			try{
+				if(statement!=null){
+					statement.close();
+				}
+			}
+			catch (SQLException se) {
+				System.out.println("SQLException in finally block...");
+			}
+		}
+		return ret;
+
+	}
+
 	public ArrayList<Tag> getTagList(){
 		ArrayList<Tag> tagList=new ArrayList<Tag>();
 		Tag tempTag=null;

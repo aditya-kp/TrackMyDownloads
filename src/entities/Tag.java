@@ -17,4 +17,9 @@ public class Tag {
 	public void setTagName(String arg){
 		tagName=arg;
 	}
+	
+	@Override
+	public String toString() {
+		return tagName;
+	}
 }

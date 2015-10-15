@@ -5,20 +5,21 @@ import java.sql.SQLException;
 
 import entities.Tag;
 import helpers.DatabaseHelper;
+import helpers.PopulatorDatabaseHelper;
 
 public class DatabaseHelperTestdrive {
 	public static void main(String[] args) {
-		DatabaseHelper databaseHelper=new DatabaseHelper();
+		PopulatorDatabaseHelper databaseHelper=new PopulatorDatabaseHelper();
 		Tag tag=new Tag();
 		tag.setTagName("songs");
 		int temp=0;
 		
 		try{
 			databaseHelper.initialize();
-			//temp=databaseHelper.insertTag(tag);
-			if(temp==1){
-				System.out.println("one tag inserted successfully..");
-			}
+			temp=databaseHelper.getTagId("pdf");
+			//if(temp==1){
+				System.out.println(temp);
+			//}
 		}
 		catch(SQLException se) {
 			System.out.println("SQLException...");
