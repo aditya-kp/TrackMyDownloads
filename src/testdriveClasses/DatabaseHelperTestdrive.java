@@ -15,7 +15,7 @@ public class DatabaseHelperTestdrive {
 		
 		try{
 			databaseHelper.initialize();
-			temp=databaseHelper.insertTag(tag);
+			//temp=databaseHelper.insertTag(tag);
 			if(temp==1){
 				System.out.println("one tag inserted successfully..");
 			}
