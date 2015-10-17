@@ -209,8 +209,10 @@ public class SearchGUI {
 				noFilter=checkNoFilter (tagName);
 				if (noFilter)
 					fileList = Program.databaseHelper.getFile(searchString);
-				else
+				else{
+					tag = new Tag(Program.databaseHelper.getTagId(tagName),tagName);
 					fileList = Program.databaseHelper.getFile(searchString,tag);
+				}
 				for (File f : fileList){
 					model.addElement(f.getFileName());
 					System.out.println("Adding Model");
