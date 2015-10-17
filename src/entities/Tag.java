@@ -4,6 +4,14 @@ public class Tag {
 	private int tagId;
 	private String tagName;
 	
+	public Tag (){
+		
+	}
+	public Tag (int id, String name){
+		tagId= id;
+		tagName = name;
+	}
+	
 	public int getTagId(){
 		return tagId;
 	}

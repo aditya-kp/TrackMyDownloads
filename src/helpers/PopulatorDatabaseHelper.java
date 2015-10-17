@@ -12,7 +12,7 @@ import entities.File;
 import entities.Tag;
 
 public class PopulatorDatabaseHelper extends DatabaseHelper {
-	//may not be required
+
 	public int insertTag(String tagName){
 		Statement statement=null;
 		int ret=0;
@@ -94,7 +94,6 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		return ret;	
 	}
 
-	//yet to be tested
 	public int getLastFileId(){
 		Statement statement=null;
 		int ret=0;
@@ -129,7 +128,6 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		return ret;
 	}
 
-	//yet to be tested 
 	public int getTagId(String argName){
 		Statement statement=null;
 		int ret=0;
@@ -327,6 +325,8 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 								"WHERE tagname = ?))";
 
 		try{
+			System.out.println("PopulatorDBH :== TagName:"+tag.getTagName());
+			/*debugger skips from here to finally */
 			statement=connection.prepareStatement(query);
 			statement.setString(1, "%"+fileName+"%");
 			statement.setString(2, tag.getTagName());

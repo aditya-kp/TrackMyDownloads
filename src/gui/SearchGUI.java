@@ -8,10 +8,15 @@ import javax.swing.SpringLayout;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.w3c.dom.traversal.NodeFilter;
+
+import entities.File;
 import entities.Tag;
 import helpers.DatabaseHelper;
 import testdriveClasses.Program;
 
+import javax.management.modelmbean.ModelMBean;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import java.awt.Font;
@@ -32,6 +37,7 @@ public class SearchGUI {
 	private JTextField searchTerm;
 	private final String title = "Main GUI";
 	private ArrayList<Tag> tagList;
+	private ArrayList<File> fileList;
 	private String[] searchResults;
 	private JScrollPane jscrlPane;
 	private JButton searchButton;
@@ -40,23 +46,15 @@ public class SearchGUI {
 	private JLabel labelNameConst;
 	private JLabel labelSizeConst;
 	private JComboBox<String> tagCombo;
-	private JList searchResultList;
+	private JList<String> searchResultList;
 	EventListeners eventListeners;
 	JButton runButton;
 	JButton openLocationButton;
+	DefaultListModel<String> model;
 
 	public SearchGUI() {
 		eventListeners = new EventListeners();
-		EventQueue.invokeLater(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				initialize();
-				
-				
-			}
-		});
+		initialize();
 		
 	}
 
@@ -66,6 +64,7 @@ public class SearchGUI {
 		searchTerm = new JTextField();
 		searchButton = new JButton("Search");
 		tagCombo = new JComboBox <String> ();
+		model = new DefaultListModel <String>();
 		
 		
 		/*****FRAME*****/
@@ -111,7 +110,7 @@ public class SearchGUI {
 		frame.getContentPane().add(menuBar);
 		
 		/*****JSCROLL PANE WITH SEARCH RESULT*****/
-		searchResultList = new JList();
+		searchResultList = new JList<String>(model);
 		searchResultList.setFont(new Font("Tahoma", Font.ITALIC, 20));
 		jscrlPane = new JScrollPane (searchResultList);
 		jscrlPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -142,10 +141,6 @@ public class SearchGUI {
 			frame.setVisible(true);
 	}
 
-	private boolean searchAction (){
-		return true;
-	}
-	
 	public void setFileDetails (String fileName,String filePath,String fileSize){
 
 		labelNameConst = new JLabel("Name :");
@@ -201,12 +196,25 @@ public class SearchGUI {
 
 		String searchString = null;
 		Object source;
+		Tag tag;
+		String tagName;
+		boolean noFilter = false;
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			source = e.getSource();
+			model.removeAllElements();
 			if (source==searchButton){
-				System.out.println("Button Pressed :"+searchString);
+				tagName = (String) tagCombo.getSelectedItem();
+				noFilter=checkNoFilter (tagName);
+				if (noFilter)
+					fileList = Program.databaseHelper.getFile(searchString);
+				else
+					fileList = Program.databaseHelper.getFile(searchString,tag);
+				for (File f : fileList){
+					model.addElement(f.getFileName());
+					System.out.println("Adding Model");
+				}
 			}
 			else if (source==runButton){
 				
@@ -228,6 +236,17 @@ public class SearchGUI {
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			searchString = searchTerm.getText();	
+		}
+		
+		public boolean checkNoFilter (String tagName){
+			System.out.println("TagName in check =="+tagName);
+			if (tagName.equalsIgnoreCase("no filter")){
+				return true;
+			}
+			else
+				return false;
+			
+			
 		}
 		
 	}

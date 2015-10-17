@@ -29,13 +29,7 @@ public class Program {
 			databaseHelper = new PopulatorDatabaseHelper();
 			databaseHelper.initialize();
 			tagList = databaseHelper.getTagList();
-			Tag tag=new Tag();
-			tag.setTagName("pdf");
-			ArrayList<File> fList = databaseHelper.getFile("File", tag);
-			for(File f: fList){
-				System.out.println(f.getFileid()+" "+f.getFileName()+" "+f.getPath()+" "+f.getFrequency());
-			}
-			databaseHelper.terminate();
+			
 		} catch (ClassNotFoundException | SQLException e ) {
 			e.printStackTrace();
 			System.err.println("Error Initialising the database at Program Class");
@@ -43,7 +37,7 @@ public class Program {
 		
 		
 		
-		//this.searchGUI = new SearchGUI();
+		this.searchGUI = new SearchGUI();
 		//this.populatorGUI = new PopulatorGUI();
 		//populatorGUI.initialise();
 	}

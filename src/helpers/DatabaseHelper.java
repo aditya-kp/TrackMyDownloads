@@ -11,8 +11,8 @@ public class DatabaseHelper {
 
 
 	static final String JDBC_DRIVER="com.mysql.jdbc.Driver";
-	static final String DB_URL="jdbc:mysql://localhost/FILE_TRACKER";
-	//static final String DB_URL="jdbc:mysql://localhost:3305/file_tracker";
+	//static final String DB_URL="jdbc:mysql://localhost/FILE_TRACKER";
+	static final String DB_URL="jdbc:mysql://localhost:3305/file_tracker";
 	
 	//database credentials
 	static final String USER="root";
