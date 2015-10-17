@@ -1,32 +1,31 @@
 package gui;
 
-import java.awt.EventQueue;
-
+import entities.*;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import org.w3c.dom.traversal.NodeFilter;
+import com.mysql.jdbc.Field;
 
-import entities.File;
-import entities.Tag;
-import helpers.DatabaseHelper;
 import testdriveClasses.Program;
 
-import javax.management.modelmbean.ModelMBean;
+import javax.print.attribute.standard.PDLOverrideSupported;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import java.awt.Font;
 import java.awt.event.ActionListener;
-import java.awt.event.TextEvent;
-import java.awt.event.TextListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JMenuBar;
 import java.awt.Color;
+import java.awt.Desktop;
+
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JLabel;
@@ -35,24 +34,27 @@ public class SearchGUI {
 
 	private JFrame frame;
 	private JTextField searchTerm;
-	private final String title = "Main GUI";
+	private final String title = "Track My Files";
 	private ArrayList<Tag> tagList;
 	private ArrayList<File> fileList;
-	private String[] searchResults;
 	private JScrollPane jscrlPane;
 	private JButton searchButton;
 	private SpringLayout springLayout;
-	boolean displayFileDetail = true;
 	private JLabel labelNameConst;
 	private JLabel labelSizeConst;
+	private JLabel labelPathConst;
+	private JLabel labelFileName;
+	private JLabel labelFilePath;
+	private JLabel labelFileSize;
 	private JComboBox<String> tagCombo;
 	private JList<String> searchResultList;
-	EventListeners eventListeners;
-	JButton runButton;
-	JButton openLocationButton;
-	DefaultListModel<String> model;
+	private EventListeners eventListeners;
+	private JButton runButton;
+	private JButton openLocationButton;
+	private DefaultListModel<String> model;
+	private File currentFile = null;
 
-	public SearchGUI() {
+ 	public SearchGUI() {
 		eventListeners = new EventListeners();
 		initialize();
 		
@@ -74,6 +76,7 @@ public class SearchGUI {
 		frame.getContentPane().setLayout(springLayout);
 		frame.setTitle(title);
 		
+		
 		/*****SEARCH TEXTBOX*****/
 		springLayout.putConstraint(SpringLayout.SOUTH, searchTerm, -476, SpringLayout.SOUTH, frame.getContentPane());
 		searchTerm.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -83,6 +86,7 @@ public class SearchGUI {
 		frame.getContentPane().add(searchTerm);
 		searchTerm.setColumns(10);
 		searchTerm.getDocument().addDocumentListener(eventListeners);
+		
 		/*****SEARCH BUTTON*****/
 		springLayout.putConstraint(SpringLayout.NORTH, searchButton, 21, SpringLayout.SOUTH, searchTerm);
 		springLayout.putConstraint(SpringLayout.SOUTH, searchButton, -426, SpringLayout.SOUTH, frame.getContentPane());
@@ -111,6 +115,7 @@ public class SearchGUI {
 		
 		/*****JSCROLL PANE WITH SEARCH RESULT*****/
 		searchResultList = new JList<String>(model);
+		searchResultList.addListSelectionListener(eventListeners);
 		searchResultList.setFont(new Font("Tahoma", Font.ITALIC, 20));
 		jscrlPane = new JScrollPane (searchResultList);
 		jscrlPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -123,37 +128,37 @@ public class SearchGUI {
 		
 		
 		/****Implement SetFileDetail() Before Run Button and Open Location button is set*****/
-		/*****RUN BUTTON****//*
-		runButton = new JButton("Run");
-		springLayout.putConstraint(SpringLayout.NORTH, runButton, 51, SpringLayout.SOUTH, labelSizeConst);
-		springLayout.putConstraint(SpringLayout.WEST, runButton, 154, SpringLayout.EAST, jscrlPane);
-		springLayout.putConstraint(SpringLayout.SOUTH, runButton, -202, SpringLayout.SOUTH, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, runButton, -219, SpringLayout.EAST, frame.getContentPane());
-		frame.getContentPane().add(runButton);
+		/*****RUN BUTTON****/
 		
-		*//*****OPEN LOCATION BUTTON*****//*
+			
+		runButton = new JButton("Run");
+		springLayout.putConstraint(SpringLayout.NORTH, runButton, 400, SpringLayout.NORTH, frame.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, runButton, 460, SpringLayout.WEST, frame.getContentPane());
+		frame.getContentPane().add(runButton);
+		runButton.addActionListener(eventListeners);
+		runButton.setVisible(false);
+		
+		/*****OPEN LOCATION BUTTON*****/
 		openLocationButton = new JButton("Open Location");
 		springLayout.putConstraint(SpringLayout.NORTH, openLocationButton, 0, SpringLayout.NORTH, runButton);
 		springLayout.putConstraint(SpringLayout.WEST, openLocationButton, 42, SpringLayout.EAST, runButton);
-		frame.getContentPane().add(openLocationButton);*/
+		frame.getContentPane().add(openLocationButton);
+		openLocationButton.addActionListener(eventListeners);
+		openLocationButton.setVisible(false);
 		
-		if (frame != null)
-			frame.setVisible(true);
-	}
-
-	public void setFileDetails (String fileName,String filePath,String fileSize){
-
 		labelNameConst = new JLabel("Name :");
 		springLayout.putConstraint(SpringLayout.WEST, labelNameConst, 154, SpringLayout.EAST, jscrlPane);
 		springLayout.putConstraint(SpringLayout.SOUTH, labelNameConst, -362, SpringLayout.SOUTH, frame.getContentPane());
 		labelNameConst.setFont(new Font("Tahoma", Font.BOLD, 19));
 		frame.getContentPane().add(labelNameConst);
 		
-		JLabel labelPathConst = new JLabel("Path   :");
+		
+		labelPathConst = new JLabel("Path   :");
 		springLayout.putConstraint(SpringLayout.NORTH, labelPathConst, 19, SpringLayout.SOUTH, labelNameConst);
 		springLayout.putConstraint(SpringLayout.WEST, labelPathConst, 0, SpringLayout.WEST, labelNameConst);
 		labelPathConst.setFont(new Font("Tahoma", Font.BOLD, 19));
 		frame.getContentPane().add(labelPathConst);
+		
 		
 		labelSizeConst = new JLabel("Size   :");
 		springLayout.putConstraint(SpringLayout.NORTH, labelSizeConst, 19, SpringLayout.SOUTH, labelPathConst);
@@ -161,29 +166,61 @@ public class SearchGUI {
 		labelSizeConst.setFont(new Font("Tahoma", Font.BOLD, 19));
 		frame.getContentPane().add(labelSizeConst);
 		
-		JLabel lblFileName = new JLabel(fileName);//
-		lblFileName.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		springLayout.putConstraint(SpringLayout.SOUTH, lblFileName, 0, SpringLayout.SOUTH, labelNameConst);
-		springLayout.putConstraint(SpringLayout.WEST, lblFileName, 31, SpringLayout.EAST, labelNameConst);
-		frame.getContentPane().add(lblFileName);
+		labelFileName = new JLabel("");//
+		labelFileName.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		springLayout.putConstraint(SpringLayout.SOUTH, labelFileName, 0, SpringLayout.SOUTH, labelNameConst);
+		springLayout.putConstraint(SpringLayout.WEST, labelFileName, 31, SpringLayout.EAST, labelNameConst);
+		frame.getContentPane().add(labelFileName);
 		
-		JLabel lblClocalhost = new JLabel(filePath);//
-		lblClocalhost.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		springLayout.putConstraint(SpringLayout.SOUTH, lblClocalhost, 0, SpringLayout.SOUTH, labelPathConst);
-		springLayout.putConstraint(SpringLayout.WEST, lblClocalhost, 31, SpringLayout.EAST, labelPathConst);
-		frame.getContentPane().add(lblClocalhost);
+		labelFilePath = new JLabel("");//
+		labelFilePath.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		springLayout.putConstraint(SpringLayout.SOUTH, labelFilePath, 0, SpringLayout.SOUTH, labelPathConst);
+		springLayout.putConstraint(SpringLayout.WEST, labelFilePath, 31, SpringLayout.EAST, labelPathConst);
+		frame.getContentPane().add(labelFilePath);
 		
-		JLabel label = new JLabel(fileSize);//
-		label.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		springLayout.putConstraint(SpringLayout.SOUTH, label, 0, SpringLayout.SOUTH, labelSizeConst);
-		springLayout.putConstraint(SpringLayout.WEST, label, 31, SpringLayout.EAST, labelSizeConst);
-		frame.getContentPane().add(label);
+		labelFileSize = new JLabel("");//
+		labelFileSize.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		springLayout.putConstraint(SpringLayout.SOUTH, labelFileSize, 0, SpringLayout.SOUTH, labelSizeConst);
+		springLayout.putConstraint(SpringLayout.WEST, labelFileSize, 31, SpringLayout.EAST, labelSizeConst);
+		frame.getContentPane().add(labelFileSize);
+		
+		fileDetailVisibility(false);
+		
+		
+			frame.setVisible(true);
+	}
+
+	private void fileDetailVisibility (boolean visible){
+		openLocationButton.setVisible(visible);
+		runButton.setVisible(visible);
+		labelNameConst.setVisible(visible);
+		labelPathConst.setVisible(visible);
+		labelSizeConst.setVisible(visible);
+		labelFileName.setVisible(visible);
+		labelFilePath.setVisible(visible);
+		labelFileSize.setVisible(visible);
+		
+		frame.getContentPane().validate();
+		frame.getContentPane().repaint();
+		
+	}
+	
+	public void addFileDetails (File file){
+		
+		String fileName = file.getFileName();
+		String filePath = file.getPath();
+		String fileSize = file.getSizeInString();
+		
+		labelFileName.setText(fileName);
+		labelFilePath.setText(filePath);
+		labelFileSize.setText(fileSize);
+		//frame.getContentPane().validate();
+		//frame.getContentPane().repaint();
 		
 	}
 	
 	private void setTagComboBox (ArrayList<Tag> tagArray){
-		String[] tagNameArray= new String[tagArray.size()];
-		int index = 0;
+		
 		tagCombo.removeAll();
 		for (Tag i : tagArray){
 			System.out.println("Adding Tag Items To TagComboBox");
@@ -192,7 +229,7 @@ public class SearchGUI {
 		
 	}
 	
-	private class EventListeners implements ActionListener, DocumentListener{
+	private class EventListeners implements ActionListener, DocumentListener,ListSelectionListener{
 
 		String searchString = null;
 		Object source;
@@ -203,24 +240,31 @@ public class SearchGUI {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			
 			source = e.getSource();
-			model.removeAllElements();
-			tagName = (String) tagCombo.getSelectedItem();
-			noFilter=checkNoFilter (tagName);
-			if (!noFilter)
-				tag = new Tag(Program.databaseHelper.getTagId(tagName),tagName);
+			
 			if (source==searchButton){
+				model.removeAllElements();
+				tagName = (String) tagCombo.getSelectedItem();
+				noFilter=checkNoFilter (tagName);
+				tag = new Tag(Program.databaseHelper.getTagId(tagName),tagName);
+				fileList=null;
+				System.err.println("Search Button pressed");
+				searchResultList.clearSelection();
+				fileDetailVisibility(false);
+				
 				if (searchString!=null){
 					if (noFilter)
 						fileList = Program.databaseHelper.getFile(searchString);
-					else{
+					else
 						fileList = Program.databaseHelper.getFile(searchString,tag);
-					}
 				}
 				else {
+					System.err.println("TAG NAME "+tag);
 					fileList=Program.databaseHelper.getFile(tag);
 					System.out.println("Ran tag");
 				}
+				
 
 				for (File f : fileList){
 					model.addElement(f.getFileName());
@@ -229,13 +273,29 @@ public class SearchGUI {
 			}
 			else if (source==runButton){
 				
+				try {
+					Desktop.getDesktop().open(new java.io.File(currentFile.getPath()));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				System.out.println("Run Button");
 			}
 			else if (source==openLocationButton) {
+				try {
+					Desktop.getDesktop().open( new java.io.File (currentFile.getFolderPath()));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				
 			}
 			
+			
 		}
 
+		/****SEARCH FIELD LISTENER METHODS****/
 		@Override
 		public void changedUpdate(DocumentEvent e) {}
 
@@ -249,16 +309,33 @@ public class SearchGUI {
 			searchString = searchTerm.getText();	
 		}
 		
-		public boolean checkNoFilter (String tagName){
-			System.out.println("TagName in check =="+tagName);
-			if (tagName.equalsIgnoreCase("no filter")){
-				return true;
-			}
-			else
-				return false;
+		
+		/**** SEARCH RESULT LISTENERS ****/
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
 			
+			if (fileList!=null&&e.getValueIsAdjusting() == true){
+			
+			currentFile = fileList.get(searchResultList.getSelectedIndex());
+			System.out.println("Folder Path : "+ currentFile.getFolderPath());
+			addFileDetails(currentFile);
+			fileDetailVisibility(true);
+			
+			
+			}
 			
 		}
 		
+		
+		/*************************************************/
+		
+		
+		public boolean checkNoFilter (String tagName){
+			System.out.println("TagName in check =="+tagName);
+			if (tagName.equalsIgnoreCase("no filter"))
+				return true;
+			else
+				return false;
+			}	
 	}
 }
