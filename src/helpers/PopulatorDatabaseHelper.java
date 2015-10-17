@@ -321,15 +321,12 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 						"WHERE filename LIKE ? AND fileid IN "+
 							"(SELECT fileid "+
 							"FROM tagged_to "+
-								"WHERE tagid = "+
-								"(SELECT tagid "+
-								"FROM tag "+
-								"WHERE tagname = ?))";
+							"WHERE tagid = ?)";
 
 		try{
 			statement=connection.prepareStatement(query);
 			statement.setString(1, "%"+fileName+"%");
-			statement.setString(2, tag.getTagName());
+			statement.setInt(2, tag.getTagId());
 			resultSet=statement.executeQuery();
 
 			while(resultSet.next()){
@@ -364,4 +361,52 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		return fileList;
 	}
 
+	public ArrayList<File> getFile (Tag tag){
+		ArrayList<File> fileList = new ArrayList<File>();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		File tempFile=null;
+		String query=	"SELECT fileid, filename, path, frequency "+
+						"FROM file "+
+						"WHERE fileid IN "+
+							"(SELECT fileid "+
+							"FROM tagged_to "+
+							"WHERE tagid = ?)";
+								
+		try{
+			statement=connection.prepareStatement(query);
+			statement.setInt(1, tag.getTagId());
+			resultSet=statement.executeQuery();
+
+			while(resultSet.next()){
+				tempFile=new File();
+				tempFile.setFileId(resultSet.getInt("fileid"));
+				tempFile.setFileName(resultSet.getString("filename"));
+				tempFile.setPath(resultSet.getString("path"));
+				tempFile.setFrequency(resultSet.getInt("frequency"));
+				fileList.add(tempFile);
+			}
+
+			resultSet.close();
+			statement.close();
+		}
+		catch(SQLException se){
+			System.out.println("SQLException");
+			se.printStackTrace();
+		}
+		finally{
+			try{
+				if(statement!=null){
+					statement.close();
+				}
+				if(resultSet!=null){
+					resultSet.close();
+				}
+			}
+			catch (SQLException se) {
+				System.out.println("SQLException in finally block...");
+			}
+		}
+		return fileList;
+	}
 }
