@@ -63,6 +63,33 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		}
 		return ret;
 	}
+	
+	public int deleteTag(Tag arg){
+		Statement statement=null;
+		int ret=0;
+
+		try{
+			statement=connection.createStatement();
+			String query="DELETE FROM tag "+
+						 "WHERE tagid="+arg.getTagId()+";";
+			ret=statement.executeUpdate(query);
+			statement.close();
+		}
+		catch(SQLException se){
+			System.out.println("SQLException");
+		}
+		finally{
+			try{
+				if(statement!=null){
+					statement.close();
+				}
+			}
+			catch (SQLException se) {
+				System.out.println("SQLException in finally block...");
+			}
+		}
+		return ret;	
+	}
 
 	//yet to be tested
 	public int getLastFileId(){

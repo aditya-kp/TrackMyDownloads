@@ -67,7 +67,7 @@ public class PopulatorGUI {
 		//JTextField pathFeild= new JTextField(20);
 		
 		JButton browseButton= new JButton("Browse");
-		browseButton.addActionListener(new browseButtonListener());
+		browseButton.addActionListener(new BrowseButtonListener());
 				
 		JLabel newTagLabel= new JLabel("New Tag Name:");
 		newTagFeild= new JTextField(20);
@@ -111,14 +111,19 @@ public class PopulatorGUI {
 
 		JButton addIconButton= new JButton();
 		JButton removeIconButton= new JButton();
+		JButton deleteIconButton= new JButton();
 		addIconButton.addActionListener(new AddIconButtonListener());
 		removeIconButton.addActionListener(new RemoveIconButtonListener());
+		deleteIconButton.addActionListener(new DeleteIconButtonListener());
 		try{
 			Image add= ImageIO.read(getClass().getResource("/icons/add_icon.png"));
 			addIconButton.setIcon(new ImageIcon(add));
 			
 			Image rem=ImageIO.read(getClass().getResource("/icons/rem_icon.png"));
 			removeIconButton.setIcon(new ImageIcon(rem));
+			
+			Image del=ImageIO.read(getClass().getResource("/icons/delete_icon.png"));
+			deleteIconButton.setIcon(new ImageIcon(del));
 		}
 		catch(IOException ioe){
 			ioe.printStackTrace();
@@ -130,6 +135,8 @@ public class PopulatorGUI {
 		addIconButton.setMinimumSize(iconButtonSize);
 		removeIconButton.setMaximumSize(iconButtonSize);
 		removeIconButton.setMinimumSize(iconButtonSize);
+		deleteIconButton.setMaximumSize(iconButtonSize);
+		deleteIconButton.setMinimumSize(iconButtonSize);
 		
 		//JPanel northLeftPanel= new JPanel();
 		//northLeftPanel.setLayout(new BoxLayout(northLeftPanel, BoxLayout.Y_AXIS));
@@ -189,6 +196,8 @@ public class PopulatorGUI {
 		centreMiddlePanel.add(addIconButton);
 		centreMiddlePanel.add(Box.createRigidArea(new Dimension(0,5)));
 		centreMiddlePanel.add(removeIconButton);
+		centreMiddlePanel.add(Box.createRigidArea(new Dimension(0,5)));
+		centreMiddlePanel.add(deleteIconButton);
 		
 		JPanel centreRightPanel= new JPanel();
 		centreRightPanel.setLayout(new BoxLayout(centreRightPanel, BoxLayout.Y_AXIS));
@@ -214,7 +223,7 @@ public class PopulatorGUI {
 				
 		frame=new JFrame("Track My Downloads");
 		Container contentPane=frame.getContentPane();
-		frame.addWindowListener(new windowListener());
+		frame.addWindowListener(new PopulatorWindowListener());
 		
 		contentPane.add(northPanel, BorderLayout.NORTH);
 		contentPane.add(southPanel, BorderLayout.SOUTH);
@@ -226,7 +235,7 @@ public class PopulatorGUI {
 		frame.setVisible(true);
 	}
 	
-	class browseButtonListener implements ActionListener{
+	class BrowseButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent ae){
 			JFileChooser fileChooser= new JFileChooser();
@@ -236,7 +245,7 @@ public class PopulatorGUI {
 		}
 	}
 	
-	class windowListener implements WindowListener{
+	class PopulatorWindowListener implements WindowListener{
 
 		@Override
 		public void windowActivated(WindowEvent e) {
@@ -335,6 +344,18 @@ public class PopulatorGUI {
 		
 	}
 
+	class DeleteIconButtonListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(selectedTag!=null){
+				databaseHelper.deleteTag(selectedTag);
+				tagListModel.removeElement(selectedTag);
+			}
+		}
+
+	}
+	
 	class AddTagButtonListener implements ActionListener{
 
 		@Override
@@ -355,7 +376,7 @@ public class PopulatorGUI {
 	class DoneButtonListener implements ActionListener{
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed(ActionEvent ae) {
 			entities.File newFile=null;
 			Tag[] addedTags=null;
 			File newIOFile=null;
@@ -379,8 +400,8 @@ public class PopulatorGUI {
 					{
 						System.out.println(newFile.getFileid()+" "+t.getTagId());
 						databaseHelper.insertTagging(newFile.getFileid(), t.getTagId());
-						frame.dispose();
 					}
+					frame.dispose();
 				}
 				else
 				{
