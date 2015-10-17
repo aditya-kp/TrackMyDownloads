@@ -29,7 +29,7 @@ public class Program {
 			databaseHelper = new PopulatorDatabaseHelper();
 			databaseHelper.initialize();
 			tagList = databaseHelper.getTagList();
-			File f = databaseHelper.getFile("File3.txt");
+			File f = databaseHelper.getFile("File2.txt");
 			System.out.println("FileName:"+f.getFileName()+"\nFile Path:"+f.getPath());
 			
 		} catch (ClassNotFoundException | SQLException e ) {
@@ -40,8 +40,8 @@ public class Program {
 		
 		
 		//this.searchGUI = new SearchGUI();
-		this.populatorGUI = new PopulatorGUI();
-		populatorGUI.initialise();
+		//this.populatorGUI = new PopulatorGUI();
+		//populatorGUI.initialise();
 	}
 	
 	

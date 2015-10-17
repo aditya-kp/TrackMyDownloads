@@ -166,8 +166,6 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		return ret;
 	}
 
-	
-	//yet to be tested
 	public int insertFile(File file){
 		String path=file.getPath();
 		int ret=0;
@@ -267,38 +265,18 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		return tagList;
 	}
 	
-	public File getFile (String fileName){
-		File f = new File ();
+	public ArrayList<File> getFile (String fileName){
+		ArrayList<File> fileList = new ArrayList<File>();
 		Statement statement = null;
 		ResultSet result = null;
-		String query = "SELECT fileId, fileName, Path FROM File WHERE fileName = "+"\""+fileName+"\"";
+		String query;
+		return fileList;
 		
-		try {
-			statement= connection.createStatement();
-			result = statement.executeQuery(query);
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("resultset not returned ");
-		}
-		
-		try {
-			result.next();
-			System.out.println(result.getInt(1)+" " +result.getString(2));
-			f.setFileId(result.getInt(1));
-			f.setFileName(result.getString(2));
-			f.setPath(result.getString(3));
-			f.setFrequency(0);
-			result.close();
-			statement.close();
-		} catch (SQLException e) {
-			System.out.println("Error setting the name and id of the file from the result set");
-		}
-		
-		
-		
-		return f;
 	}
 
+	public ArrayList<File> getFile (String fileName,ArrayList<Tag> tags){
+		ArrayList<File> fileList = new ArrayList<File>();
+		return fileList;
+	}
 
 }
