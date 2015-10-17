@@ -145,6 +145,7 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		}
 		catch(SQLException se){
 			se.printStackTrace();
+			System.out.println("Error geting the tagid");
 		}
 		finally{
 			try{

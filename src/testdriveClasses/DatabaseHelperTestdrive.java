@@ -11,9 +11,9 @@ public class DatabaseHelperTestdrive {
 	public static void main(String[] args) {
 		PopulatorDatabaseHelper databaseHelper=new PopulatorDatabaseHelper();
 		Tag tag=new Tag();
-		tag.setTagName("songs");
+		tag.setTagName("pdf");
 		int temp=0;
-		
+				
 		try{
 			databaseHelper.initialize();
 			temp=databaseHelper.getTagId("pdf");
