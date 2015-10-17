@@ -200,19 +200,28 @@ public class SearchGUI {
 		String tagName;
 		boolean noFilter = false;
 		
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			source = e.getSource();
 			model.removeAllElements();
+			tagName = (String) tagCombo.getSelectedItem();
+			noFilter=checkNoFilter (tagName);
+			if (!noFilter)
+				tag = new Tag(Program.databaseHelper.getTagId(tagName),tagName);
 			if (source==searchButton){
-				tagName = (String) tagCombo.getSelectedItem();
-				noFilter=checkNoFilter (tagName);
-				if (noFilter)
-					fileList = Program.databaseHelper.getFile(searchString);
-				else{
-					tag = new Tag(Program.databaseHelper.getTagId(tagName),tagName);
-					fileList = Program.databaseHelper.getFile(searchString,tag);
+				if (searchString!=null){
+					if (noFilter)
+						fileList = Program.databaseHelper.getFile(searchString);
+					else{
+						fileList = Program.databaseHelper.getFile(searchString,tag);
+					}
 				}
+				else {
+					fileList=Program.databaseHelper.getFile(tag);
+					System.out.println("Ran tag");
+				}
+
 				for (File f : fileList){
 					model.addElement(f.getFileName());
 					System.out.println("Adding Model");
