@@ -169,28 +169,26 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 	
 	//yet to be tested
 	public int insertFile(File file){
-		Statement statement=null;
 		String path=file.getPath();
 		int ret=0;
+		PreparedStatement preparedStatement=null;
 
 		try{
-			statement=connection.createStatement();
 			String query="INSERT INTO file(filename, path, frequency) "+"VALUE(?,?,?)";
-					     //"VALUE(\""+file.getFileName()+"\",\""+path+"\","+file.getFrequency()+");";
-			PreparedStatement preparedStatement = connection.prepareStatement(query);
+			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, file.getFileName());
 			preparedStatement.setString(2, file.getPath());
 			preparedStatement.setInt(3, file.getFrequency());
 			preparedStatement.execute();
-			statement.close();
+			preparedStatement.close();
 		}
 		catch(SQLException se){
 			se.printStackTrace();
 		}
 		finally{
 			try{
-				if(statement!=null){
-					statement.close();
+				if(preparedStatement!=null){
+					preparedStatement.close();
 				}
 			}
 			catch (SQLException se) {
