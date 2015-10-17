@@ -29,9 +29,13 @@ public class Program {
 			databaseHelper = new PopulatorDatabaseHelper();
 			databaseHelper.initialize();
 			tagList = databaseHelper.getTagList();
-			File f = databaseHelper.getFile("File2.txt");
-			System.out.println("FileName:"+f.getFileName()+"\nFile Path:"+f.getPath());
-			
+			Tag tag=new Tag();
+			tag.setTagName("pdf");
+			ArrayList<File> fList = databaseHelper.getFile("File", tag);
+			for(File f: fList){
+				System.out.println(f.getFileid()+" "+f.getFileName()+" "+f.getPath()+" "+f.getFrequency());
+			}
+			databaseHelper.terminate();
 		} catch (ClassNotFoundException | SQLException e ) {
 			e.printStackTrace();
 			System.err.println("Error Initialising the database at Program Class");

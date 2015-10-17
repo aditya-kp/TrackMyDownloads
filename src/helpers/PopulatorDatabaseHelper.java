@@ -19,8 +19,8 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 
 		try{
 			statement=connection.createStatement();
-			String query="INSERT INTO tag(tagname)"+
-					" value(\""+tagName+"\");";
+			String query="INSERT INTO tag(tagname) "+
+					     "VALUE(\""+tagName+"\");";
 			ret=statement.executeUpdate(query);
 			statement.close();
 		}
@@ -46,8 +46,8 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 
 		try{
 			statement=connection.createStatement();
-			String query="INSERT INTO tag(tagname)"+
-					"value(\""+ tag.getTagName() +"\");";
+			String query="INSERT INTO tag(tagname) "+
+					     "VALUE(\""+ tag.getTagName() +"\");";
 			ret=statement.executeUpdate(query);
 			statement.close();
 		}
@@ -66,7 +66,7 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		}
 		return ret;
 	}
-	
+
 	public int deleteTag(Tag arg){
 		Statement statement=null;
 		int ret=0;
@@ -74,7 +74,7 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		try{
 			statement=connection.createStatement();
 			String query="DELETE FROM tag "+
-						 "WHERE tagid="+arg.getTagId()+";";
+					     "WHERE tagid="+arg.getTagId()+";";
 			ret=statement.executeUpdate(query);
 			statement.close();
 		}
@@ -103,7 +103,7 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		try{
 			statement=connection.createStatement();
 			String query="SELECT MAX(fileid) AS maxid "+
-						 "FROM file;";
+					     "FROM file;";
 			resultSet=statement.executeQuery(query);
 			resultSet.next();
 			ret=resultSet.getInt("maxid");
@@ -138,8 +138,8 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		try{
 			statement=connection.createStatement();
 			String query="SELECT tagid "+
-						 "FROM tag "+
-						 "WHERE tagname=\'"+argName+"\'";
+					"FROM tag "+
+					"WHERE tagname=\'"+argName+"\'";
 			resultSet=statement.executeQuery(query);
 			resultSet.next();
 			ret=resultSet.getInt("tagid");
@@ -195,7 +195,7 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		}
 		return ret;
 	}
-	
+
 	public int insertTagging(int fileId, int tagId){
 		Statement statement=null;
 		int ret=0;
@@ -264,18 +264,103 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 
 		return tagList;
 	}
-	
+
 	public ArrayList<File> getFile (String fileName){
 		ArrayList<File> fileList = new ArrayList<File>();
-		Statement statement = null;
-		ResultSet result = null;
-		String query;
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		File tempFile=null;
+		String query=	"SELECT fileid, filename, path, frequency "+
+				 		"FROM file "+
+				 		"WHERE filename LIKE ?";
+
+		try{
+			statement=connection.prepareStatement(query);
+			statement.setString(1, "%"+fileName+"%");
+			resultSet=statement.executeQuery();
+
+			while(resultSet.next()){
+				tempFile=new File();
+				tempFile.setFileId(resultSet.getInt("fileid"));
+				tempFile.setFileName(resultSet.getString("filename"));
+				tempFile.setPath(resultSet.getString("path"));
+				tempFile.setFrequency(resultSet.getInt("frequency"));
+				fileList.add(tempFile);
+			}
+
+			resultSet.close();
+			statement.close();
+		}
+		catch(SQLException se){
+			System.out.println("SQLException");
+			se.printStackTrace();
+		}
+		finally{
+			try{
+				if(statement!=null){
+					statement.close();
+				}
+				if(resultSet!=null){
+					resultSet.close();
+				}
+			}
+			catch (SQLException se) {
+				System.out.println("SQLException in finally block...");
+			}
+		}
 		return fileList;
-		
 	}
 
-	public ArrayList<File> getFile (String fileName,ArrayList<Tag> tags){
+	public ArrayList<File> getFile (String fileName, Tag tag){
 		ArrayList<File> fileList = new ArrayList<File>();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		File tempFile=null;
+		String query=	"SELECT fileid, filename, path, frequency "+
+						"FROM file "+
+						"WHERE filename LIKE ? AND fileid IN "+
+							"(SELECT fileid "+
+							"FROM tagged_to "+
+								"WHERE tagid = "+
+								"(SELECT tagid "+
+								"FROM tag "+
+								"WHERE tagname = ?))";
+
+		try{
+			statement=connection.prepareStatement(query);
+			statement.setString(1, "%"+fileName+"%");
+			statement.setString(2, tag.getTagName());
+			resultSet=statement.executeQuery();
+
+			while(resultSet.next()){
+				tempFile=new File();
+				tempFile.setFileId(resultSet.getInt("fileid"));
+				tempFile.setFileName(resultSet.getString("filename"));
+				tempFile.setPath(resultSet.getString("path"));
+				tempFile.setFrequency(resultSet.getInt("frequency"));
+				fileList.add(tempFile);
+			}
+
+			resultSet.close();
+			statement.close();
+		}
+		catch(SQLException se){
+			System.out.println("SQLException");
+			se.printStackTrace();
+		}
+		finally{
+			try{
+				if(statement!=null){
+					statement.close();
+				}
+				if(resultSet!=null){
+					resultSet.close();
+				}
+			}
+			catch (SQLException se) {
+				System.out.println("SQLException in finally block...");
+			}
+		}
 		return fileList;
 	}
 
