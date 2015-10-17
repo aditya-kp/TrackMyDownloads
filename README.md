@@ -1,6 +1,6 @@
 # TrackMyDownloads
 
->TagComboBox in the searcg GUI now populates tags from the database when the searchGUI is created
+>TagComboBox in the searcg GUI now populates tags from the database when the searchGUI is created. 
 >Listeners added to the searchField, runButton, openLocationButton and searchButton
 
 //Note : does the populator add a file that was already added if we select it again ??
