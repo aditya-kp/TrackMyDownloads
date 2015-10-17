@@ -5,6 +5,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import com.mysql.fabric.xmlrpc.base.Array;
+import java.sql.PreparedStatement;
+
 import entities.File;
 import entities.Tag;
 
@@ -167,13 +170,18 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 	//yet to be tested
 	public int insertFile(File file){
 		Statement statement=null;
+		String path=file.getPath();
 		int ret=0;
 
 		try{
 			statement=connection.createStatement();
-			String query="INSERT INTO file(filename, path, frequency) "+
-					     "VALUE(\""+file.getFileName()+"\",\""+file.getPath()+"\","+file.getFrequency()+");";
-			ret=statement.executeUpdate(query);
+			String query="INSERT INTO file(filename, path, frequency) "+"VALUE(?,?,?)";
+					     //"VALUE(\""+file.getFileName()+"\",\""+path+"\","+file.getFrequency()+");";
+			PreparedStatement preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, file.getFileName());
+			preparedStatement.setString(2, file.getPath());
+			preparedStatement.setInt(3, file.getFrequency());
+			preparedStatement.execute();
 			statement.close();
 		}
 		catch(SQLException se){
@@ -259,6 +267,39 @@ public class PopulatorDatabaseHelper extends DatabaseHelper {
 		}
 
 		return tagList;
+	}
+	
+	public File getFile (String fileName){
+		File f = new File ();
+		Statement statement = null;
+		ResultSet result = null;
+		String query = "SELECT fileId, fileName, Path FROM File WHERE fileName = "+"\""+fileName+"\"";
+		
+		try {
+			statement= connection.createStatement();
+			result = statement.executeQuery(query);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("resultset not returned ");
+		}
+		
+		try {
+			result.next();
+			System.out.println(result.getInt(1)+" " +result.getString(2));
+			f.setFileId(result.getInt(1));
+			f.setFileName(result.getString(2));
+			f.setPath(result.getString(3));
+			f.setFrequency(0);
+			result.close();
+			statement.close();
+		} catch (SQLException e) {
+			System.out.println("Error setting the name and id of the file from the result set");
+		}
+		
+		
+		
+		return f;
 	}
 
 

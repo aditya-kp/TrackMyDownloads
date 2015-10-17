@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import org.omg.CORBA.Principal;
 
+import entities.File;
 import entities.Tag;
 import gui.PopulatorGUI;
 import gui.SearchGUI;
@@ -28,6 +29,9 @@ public class Program {
 			databaseHelper = new PopulatorDatabaseHelper();
 			databaseHelper.initialize();
 			tagList = databaseHelper.getTagList();
+			File f = databaseHelper.getFile("File3.txt");
+			System.out.println("FileName:"+f.getFileName()+"\nFile Path:"+f.getPath());
+			
 		} catch (ClassNotFoundException | SQLException e ) {
 			e.printStackTrace();
 			System.err.println("Error Initialising the database at Program Class");
@@ -35,19 +39,15 @@ public class Program {
 		
 		
 		
-		this.searchGUI = new SearchGUI();
-		//this.populatorGUI = new PopulatorGUI();
-		//populatorGUI.initialise();
+		//this.searchGUI = new SearchGUI();
+		this.populatorGUI = new PopulatorGUI();
+		populatorGUI.initialise();
 	}
 	
 	
 	public static void main (String [] arg ) {
 		
-		Program program = new Program();
-		
-		
-		
-		
+		Program program = new Program();	
 		
 	}
 	
