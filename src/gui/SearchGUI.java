@@ -8,24 +8,25 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
-import com.mysql.jdbc.Field;
-
 import testdriveClasses.Program;
-
-import javax.print.attribute.standard.PDLOverrideSupported;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Panel;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.lang.invoke.ConstantCallSite;
+import java.nio.channels.NonWritableChannelException;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JMenuBar;
-import java.awt.Color;
-import java.awt.Desktop;
+import javax.swing.JPanel;
 
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Desktop;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JLabel;
@@ -53,6 +54,14 @@ public class SearchGUI {
 	private JButton openLocationButton;
 	private DefaultListModel<String> model;
 	private File currentFile = null;
+	private JPanel searchPanel;
+	private JPanel detailPanel;
+	SpringLayout springLayout2;
+	private final String NORTH=SpringLayout.NORTH;
+	private final String SOUTH=SpringLayout.SOUTH;
+	private final String EAST=SpringLayout.EAST;
+	private final String WEST=SpringLayout.WEST;
+	
 
 	public SearchGUI() {
 		eventListeners = new EventListeners();
@@ -63,11 +72,14 @@ public class SearchGUI {
 	private void initialize() {
 		frame = new JFrame();
 		springLayout = new SpringLayout();
+		springLayout2 = new SpringLayout();
 		searchTerm = new JTextField();
 		searchButton = new JButton("Search");
 		tagCombo = new JComboBox <String> ();
 		model = new DefaultListModel <String>();
-
+		Container pane = frame.getContentPane();
+		searchPanel = new JPanel();
+		detailPanel = new JPanel();
 
 		/*****FRAME*****/
 		frame.getContentPane().setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -76,42 +88,43 @@ public class SearchGUI {
 		frame.getContentPane().setLayout(springLayout);
 		frame.setTitle(title);
 
-
+		
+		searchPanel.setBackground(Color.LIGHT_GRAY);
+		springLayout.putConstraint(EAST, searchPanel, -10, SpringLayout.EAST, pane);
+		springLayout.putConstraint(SpringLayout.WEST, searchPanel, 16, SpringLayout.WEST, pane);
+		springLayout.putConstraint(NORTH, searchPanel, 10, NORTH, pane);
+		springLayout.putConstraint(SOUTH, searchPanel, 120, NORTH, pane);
+		searchPanel.setLayout(springLayout2);
+		
+		
 		/*****SEARCH TEXTBOX*****/
-		springLayout.putConstraint(SpringLayout.SOUTH, searchTerm, -476, SpringLayout.SOUTH, frame.getContentPane());
+		
 		searchTerm.setFont(new Font("Tahoma", Font.BOLD, 16));
-		springLayout.putConstraint(SpringLayout.WEST, searchTerm, 22, SpringLayout.WEST, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, searchTerm, -29, SpringLayout.EAST, frame.getContentPane());
+		springLayout2.putConstraint(SpringLayout.NORTH, searchTerm, 6, SpringLayout.NORTH, searchPanel);
+		springLayout2.putConstraint(SpringLayout.WEST, searchTerm, 6, SpringLayout.WEST, searchPanel);
+		springLayout2.putConstraint(SpringLayout.EAST, searchTerm, -200, SpringLayout.EAST, searchPanel);
+		springLayout2.putConstraint(SOUTH,searchTerm,54,NORTH,searchPanel );
 		searchTerm.setToolTipText("Enter File Name Here");
-		frame.getContentPane().add(searchTerm);
-		searchTerm.setColumns(10);
+		searchPanel.add(searchTerm);
 		searchTerm.getDocument().addDocumentListener(eventListeners);
 
 		/*****SEARCH BUTTON*****/
-		springLayout.putConstraint(SpringLayout.NORTH, searchButton, 21, SpringLayout.SOUTH, searchTerm);
-		springLayout.putConstraint(SpringLayout.SOUTH, searchButton, -426, SpringLayout.SOUTH, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, searchButton, -177, SpringLayout.EAST, frame.getContentPane());
-		frame.getContentPane().add(searchButton);
+		springLayout2.putConstraint(SpringLayout.NORTH, searchButton, 0, SpringLayout.NORTH, searchTerm);
+		springLayout2.putConstraint(SpringLayout.WEST, searchButton, -160, SpringLayout.EAST, searchPanel);
+		springLayout2.putConstraint(SpringLayout.EAST, searchButton, -20, SpringLayout.EAST, searchPanel);
+		springLayout2.putConstraint(SpringLayout.SOUTH, searchButton, 0, SOUTH, searchTerm);
+		searchPanel.add(searchButton);
 		searchButton.addActionListener(eventListeners);
+		
 
 		/*****TAG COMBOBOX*****/
-		springLayout.putConstraint(SpringLayout.WEST, searchButton, 154, SpringLayout.EAST, tagCombo);
-		springLayout.putConstraint(SpringLayout.NORTH, tagCombo, 21, SpringLayout.SOUTH, searchTerm);
-		springLayout.putConstraint(SpringLayout.SOUTH, tagCombo, -426, SpringLayout.SOUTH, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, tagCombo, 0, SpringLayout.WEST, searchTerm);
-		springLayout.putConstraint(SpringLayout.EAST, tagCombo, -468, SpringLayout.EAST, frame.getContentPane());
-		frame.getContentPane().add(tagCombo);
+		springLayout2.putConstraint(SpringLayout.NORTH, tagCombo, 8, SOUTH, searchTerm);
+		springLayout2.putConstraint(SpringLayout.SOUTH, tagCombo, -8, SOUTH, searchPanel);
+		springLayout2.putConstraint(SpringLayout.WEST, tagCombo, 0, SpringLayout.WEST, searchTerm);
+		springLayout2.putConstraint(SpringLayout.EAST, tagCombo, 350, WEST, searchPanel);
+		searchPanel.add(tagCombo);
 		tagList = Program.databaseHelper.getTagList();
 		this.setTagComboBox(tagList);
-
-		/*****MENU BAR*****/
-		JMenuBar menuBar = new JMenuBar();
-		springLayout.putConstraint(SpringLayout.NORTH, searchTerm, 22, SpringLayout.SOUTH, menuBar);
-		menuBar.setBackground(new Color(128, 128, 128));
-		springLayout.putConstraint(SpringLayout.NORTH, menuBar, 0, SpringLayout.NORTH, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, menuBar, 0, SpringLayout.WEST, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, menuBar, 782, SpringLayout.WEST, frame.getContentPane());
-		frame.getContentPane().add(menuBar);
 
 		/*****JSCROLL PANE WITH SEARCH RESULT*****/
 		searchResultList = new JList<String>(model);
@@ -119,11 +132,11 @@ public class SearchGUI {
 		searchResultList.setFont(new Font("Tahoma", Font.ITALIC, 20));
 		jscrlPane = new JScrollPane (searchResultList);
 		jscrlPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		jscrlPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		springLayout.putConstraint(SpringLayout.NORTH, jscrlPane, 21, SpringLayout.SOUTH, tagCombo);
+		jscrlPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);		
+		springLayout.putConstraint(SpringLayout.NORTH, jscrlPane, 8, SOUTH, searchPanel);
 		springLayout.putConstraint(SpringLayout.SOUTH, jscrlPane, -50, SpringLayout.SOUTH, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST,jscrlPane,0,SpringLayout.WEST,tagCombo);
-		springLayout.putConstraint(SpringLayout.EAST,jscrlPane,0,SpringLayout.EAST,tagCombo);
+		springLayout.putConstraint(SpringLayout.WEST,jscrlPane,0,SpringLayout.WEST,searchPanel);
+		springLayout.putConstraint(SpringLayout.EAST,jscrlPane,350,WEST,pane);
 		frame.getContentPane().add(jscrlPane);
 
 		/*****RUN BUTTON****/
@@ -180,7 +193,9 @@ public class SearchGUI {
 		springLayout.putConstraint(SpringLayout.WEST, labelFileSize, 31, SpringLayout.EAST, labelSizeConst);
 		frame.getContentPane().add(labelFileSize);
 
+		pane.add(searchPanel);
 		fileDetailVisibility(false);
+		frame.setResizable(false);
 		frame.setVisible(true);
 	}
 
